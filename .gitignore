@@ -1,0 +1,76 @@
+# ===========================
+# Build outputs
+# ===========================
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
+
+# ===========================
+# Visual Studio
+# ===========================
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+
+# ===========================
+# NuGet
+# ===========================
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+packages/
+
+# ===========================
+# .NET / MSBuild
+# ===========================
+*.pdb
+*.ilk
+*.meta
+*.exp
+*.iobj
+*.ipdb
+GeneratedFiles/
+
+# ===========================
+# MSIX / AppX packaging
+# ===========================
+AppPackages/
+BundleArtifacts/
+Package.StoreAssociation.xml
+_pkginfo.txt
+*.appx
+*.appxbundle
+*.appxupload
+*.msix
+*.msixbundle
+*.msixupload
+
+# ===========================
+# Windows
+# ===========================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ===========================
+# Temporary / IDE generated
+# ===========================
+*.Backup.tmp
+*.assets.cache
+*.wapproj.user
+
+# ===========================
+# Logs & diagnostics
+# ===========================
+*.log
+*.txt.bak
+crash-*.json
+PreConnect/CLIENT_PROTOCOL.md
+PreConnect.EndpointProbe/README.md
