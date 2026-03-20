@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System.Threading.Tasks;
 using PreConnect.BackEnd.LibreHardwareMonitor;
 using PreConnect.BackEnd.Networking;
 using PreConnect.Connectivity;
@@ -19,6 +20,8 @@ public sealed partial class MainWindow : Window
     private readonly PairingService _pairingService;
     private readonly DiscoveryService _discoveryService;
     private StartPageNavigationContext? _navContext;
+    private TrayIconHost? _trayIcon;
+    private bool _exitRequested;
 
     public MainWindow()
     {
@@ -33,9 +36,11 @@ public sealed partial class MainWindow : Window
 
         AppWindow.Resize(new SizeInt32(960, 660));
         TrySetWindowIcon();
+        InitializeTrayIcon();
 
-        _ = _discoveryService.StartAsync();
+        _ = EnsureBackgroundServicesStartedAsync();
 
+        AppWindow.Closing += OnAppWindowClosing;
         Closed += OnClosed;
 
         if (RootNav.MenuItems is { Count: > 0 })
@@ -70,10 +75,57 @@ public sealed partial class MainWindow : Window
 
     private async void OnClosed(object sender, WindowEventArgs args)
     {
+        _trayIcon?.Dispose();
+        _trayIcon = null;
+
         await _dataHost.DisposeAsync();
         _monitor.Dispose();
         await _pairingService.DisposeAsync();
         await _discoveryService.DisposeAsync();
+    }
+
+    private async Task EnsureBackgroundServicesStartedAsync()
+    {
+        await _discoveryService.StartAsync();
+        if (!_dataHost.IsRunning)
+        {
+            await _dataHost.StartAsync();
+        }
+    }
+
+    private void InitializeTrayIcon()
+    {
+        var hwnd = WindowNative.GetWindowHandle(this);
+        _trayIcon = new TrayIconHost(hwnd, "PreConnect", ShowFromTray, ExitFromTray);
+    }
+
+    private void OnAppWindowClosing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        if (_exitRequested)
+        {
+            return;
+        }
+
+        args.Cancel = true;
+        HideToTray();
+    }
+
+    private void HideToTray()
+    {
+        AppWindow.Hide();
+        _trayIcon?.ShowBalloonTip("PreConnect", "程序已在后台运行");
+    }
+
+    private void ShowFromTray()
+    {
+        AppWindow.Show();
+        Activate();
+    }
+
+    private void ExitFromTray()
+    {
+        _exitRequested = true;
+        Close();
     }
 
     private void TrySetWindowIcon()
